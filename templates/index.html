@@ -1,11 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Review Classification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    
+
+<body class="bg-gray-100 min-h-screen p-4">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-blue-600 text-center">Customer Review Classification</h1>
+
+        <form id="predict-form" action="/predict" method="post" class="bg-white shadow-lg rounded-lg p-6 space-y-6">
+
+            <!-- Model Selection Dropdown -->
+            <div>
+                <label for="model_name" class="block text-lg font-medium text-gray-700 mb-2">Select Model</label>
+                <select name="model_name" id="model_name" required
+                    class="block w-full p-3 border-2 border-gray-200 rounded-lg text-base focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    <option value="model-1">Logistic Regression</option>
+                    <option value="model-2">Gradient Boosting Classifier</option>
+                    <option value="model-3">SGD Classifier</option>
+                </select>
+            </div>
+
+            <!-- Input Textarea -->
+            <div>
+                <textarea name="input_value" id="input_value" required rows="8"
+                    class="text-base p-4 w-full min-h-[300px] border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 resize-none transition-all duration-200 placeholder-gray-400"
+                    placeholder="Enter your input here..."></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 hover:scale-[1.02] shadow-md">
+                    Predict
+                </button>
+            </div>
+        </form>
+
+        <!-- Result Box -->
+        <div id="result" class="hidden text-lg text-gray-800 mt-6 p-4 bg-white rounded-lg shadow-md text-center"></div>
+    </div>
+
+    <script>
+        document.getElementById('predict-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.add('hidden');
+
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Prediction failed');
+
+                const json = await response.json();
+
+                if (json.prediction) {
+                    resultDiv.innerText = `This review is ${json.prediction}`;
+                } else {
+                    resultDiv.innerText = "Prediction failed.";
+                }
+
+                resultDiv.classList.remove('hidden');
+
+            } catch (error) {
+                resultDiv.innerText = "Error: Could not get prediction";
+                resultDiv.classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
+
 </html>
